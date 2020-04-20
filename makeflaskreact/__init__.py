@@ -18,7 +18,7 @@ import io
 
 
 def main(foldername, apipath, norun, port, host):
-    click.echo('Building server folder 🗂️ 🧰 ')
+    click.echo('Building server folder 🗂️  🧰 ')
     cur_dir = getcwd()
     name_server = foldername
     server_path = apipath
@@ -83,7 +83,11 @@ def test():
     res.headers['Access-Control-Allow-Origin'] = "*"
     res.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept'
     return res
-""" % (server_path))
+
+
+if __name__ == '__main__':
+    app.run(host='%s', port='%s', reload=True)
+""" % (server_path, host, port))
 
     with open(server_app, "w+") as f:
         for line in new_app.split("\n"):

@@ -12,7 +12,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="makeflaskreact",
-    version="1.0.0",
+    version="1.0.1",
     author="Greyson Nevins-Archer",
     author_email="greyson.nevins@gmail.com",
     description="To make it easier to create a quick flask react app",
