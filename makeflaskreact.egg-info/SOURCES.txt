@@ -1,0 +1,9 @@
+README.md
+setup.py
+makeflaskreact/__init__.py
+makeflaskreact.egg-info/PKG-INFO
+makeflaskreact.egg-info/SOURCES.txt
+makeflaskreact.egg-info/dependency_links.txt
+makeflaskreact.egg-info/entry_points.txt
+makeflaskreact.egg-info/requires.txt
+makeflaskreact.egg-info/top_level.txt

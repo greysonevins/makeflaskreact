@@ -1,0 +1,3 @@
+[console_scripts]
+makeflaskreact = makeflaskreact.__init__:main
+
