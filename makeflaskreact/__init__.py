@@ -9,7 +9,7 @@ import shlex
 import io
 from shutil import rmtree
 import re
-
+import click_spinner
 @click.command()
 @click.option('--app', '-a',  default='app', help='Name your application')
 @click.option('--norun', '-n',  default=False, help='This module will automatically run if unless you call no run')
@@ -119,55 +119,83 @@ def main(app, norun):
     server_url = "http://{host}:{port}{server_path}test".format(host=host, port=port, server_path=server_path)
 
     try:
-        pythonUsed = click.prompt('What is your python command (e.g., python python3)', type=str, default='python')
 
-        create_react_app = click.prompt('Was is your create react app command (e.g., npx create_react_app,  npm create-react-app, yarn create react-app', type=str, default='yarn create react-app').strip()
-        dev_tool = 'npm' if create_react_app.strip().split(" ")[0][0] == 'n' else 'yarn'
+        found_dev_tool = False
+
+        while not found_dev_tool:
+
+            pythonUsed = click.prompt('What is your python command (e.g., python python3)', type=str, default='python')
+
+            found_dev_tool = verify_dev_tool(pythonUsed)
+            if not found_dev_tool:
+                if click.confirm('% was not found on this system, would like to try again?' % pythonUsed, abort=True):
+                    found_dev_tool = False
+
+
+
+
+
+        click.echo()
+        click.echo('Choose which version control to use for React...')
+        click.echo()
+        click.echo('1. yarn')
+        click.echo('2 npm')
+
+        found_dev_tool = False
+        dev_tool = ''
+        while not found_dev_tool:
+
+            dev_tool = 'yarn' if click.prompt('Select 1 for yarn and 2 for 1', type=click.IntRange(1,2)) == 1 else 'npm'
+
+            found_dev_tool = verify_dev_tool(dev_tool)
+            if not found_dev_tool:
+                if click.confirm('% was not found on this system, would like to try again?' % dev_tool, abort=True):
+                    found_dev_tool = False
+
+
+
+        create_app = 'npx create-react-app %s' if dev_tool == 'npm' else 'yarn create react-app %s'
+
         install_dev_tool = 'npm install --save axios' if dev_tool == 'npm' else 'yarn add axios'
 
         app_name = click.prompt('What do you want your react app to be called (defaults to client)', default='client')
+        create_app = (create_app % app_name)
         app_path = join(working_dir_app, app_name)
+
+
         try:
 
-            cmd_create_react_app = ('cd %s && %s %s' % (working_dir_app, create_react_app,  app_name))
-            run_create = subprocess.Popen(cmd_create_react_app,
-                           stdout = subprocess.PIPE,
-                           shell=True)
+            cmd_create_react_app = ('cd %s && %s' % (working_dir_app, create_app))
+            click.echo('Building your React App...')
+            with click_spinner.spinner():
+                try:
+                    cmd_pipe_subprocess(cmd_create_react_app, 'Create React App')
+                except Exception as e:
+                    click.echo(e, err=True)
 
+            click.echo('Done with Build of React app...✅')
 
             click.echo()
 
-            click.echo()
-            while run_create.poll() != None:
-                nextline = run_create.stdout.readline()
-                if nextline == '' and run_create.poll() is not None:
-                    break
-                sys.stdout.write(nextline)
-                sys.stdout.flush()
+            click.echo('Creating boilerplate around React App....')
+            with click_spinner.spinner():
+                try:
+                    install_axios_command = 'cd %s && %s' % (app_path, install_dev_tool)
+                    cmd_pipe_subprocess(install_axios_command, 'Install Axios')
+                    click.echo('.......Axios Installed ✅')
+                    app_js_file = (LOAD_APP_JS % (server_url))
+
+                    with open(join(app_path, 'src', 'App.js'), "w+") as f:
+                        for line in app_js_file.split("\n"):
+                            f.write(line + "\n")
+                    click.echo('......New template App.js created ✅')
+
+                except Exception as e:
+                    click.echo(e, err=True)
+            click.echo('Done creating boilerplate...✅')
 
 
-            attempt = 0
 
-            syms = ['\\', '|', '/', '-']
-
-            while True:
-                for s in syms:
-                    click.echo('Building React App.... %s' % s)
-                    time.sleep(0.1)
-                    click.clear()
-                if isfile(join(app_path, 'src', 'App.js')) and isfile(join(app_path, 'package.json')):
-                    break
-                time.sleep(0.5)
-                attempt +=1
-                if attempt > 1000:
-                    raise Exception
-
-            system('cd %s && %s' % (app_path, install_dev_tool))
-            app_js_file = (LOAD_APP_JS % (server_url))
-
-            with open(join(app_path, 'src', 'App.js'), "w+") as f:
-                for line in app_js_file.split("\n"):
-                    f.write(line + "\n")
 
 
 
@@ -175,17 +203,28 @@ def main(app, norun):
 
             raise
 
-        res1 = ''
-        res2 = ''
+
+
         try:
 
-            res1 = popen(('%s -m pip install virtualenv' % (pythonUsed)))
-        except Exception as e:
-            if res1:
-                print(res1.read())
-            raise
-        try:
-            system(('cd %s && %s -m virtualenv env && source %s/env/bin/activate &&  %s/env/bin/pip install -r requirements.txt' % (new_path_server, pythonUsed,  new_path_server, new_path_server)))
+            click.echo('Creating server enviroment with virtualenv')
+            with click_spinner.spinner():
+                try:
+                    verify_virtualenv = ('%s -m pip install virtualenv' % (pythonUsed))
+                    cmd_pipe_subprocess(verify_virtualenv, 'Create virtualenv')
+
+                except Exception as e:
+                    click.echo(e, err=True)
+                try:
+                    install_depends =  ('cd %s && %s -m virtualenv env && source %s/env/bin/activate &&  %s/env/bin/pip install -r requirements.txt' % (new_path_server, pythonUsed,  new_path_server, new_path_server))
+                    cmd_pipe_subprocess(install_depends, 'Install Dependencies')
+
+                except Exception as e:
+                    click.echo(e, err=True)
+
+
+
+            click.echo('Done setting up virtualenv...✅')
 
         except Exception as e:
             print(e)
@@ -221,7 +260,7 @@ def main(app, norun):
                                shell=True)
             doneVirtual = False
             for line in run_app_res.stdout:
-                line_str = str(line.decode('ascii'))
+                line_str = str(line.decode('utf-8').strip())
 
                 if "Environment" in line_str:
                     doneVirtual = True
@@ -236,7 +275,7 @@ def main(app, norun):
                     click.echo()
 
             for line in run_app_react.stdout:
-                line_str = str(line.decode('ascii'))
+                line_str = str(line.decode('utf-8').strip())
                 if doneVirtual:
                     print(line_str)
 
@@ -254,6 +293,54 @@ def main(app, norun):
 
 
 
+
+def cmd_pipe_subprocess(cmd='', cmd_text='',done_prompt=False):
+    cmd_pipe = subprocess.Popen(cmd, stdout = subprocess.PIPE,
+                                      stderr=subprocess.PIPE,
+                               shell=True)
+
+    while True:
+        nextline = cmd_pipe.stdout.readline()
+        nextlineerr = cmd_pipe.stderr.readline()
+        try:
+            if type(nextline) == bytes:
+                nextline = str(nextline.decode('utf-8').strip())
+        except:
+            print(e)
+            nextline = nextline
+        try:
+            nextline = nextline
+            if type(nextlineerr) == bytes:
+                nextlineerr = str(nextlineerr.decode('utf-8').strip())
+        except Exception as e:
+            print(e)
+            nextlineerr = nextlineerr
+
+        if nextline == '' and cmd_pipe.poll() is not None:
+            if done_prompt:
+                click.echo(done_prompt)
+            break
+        if 'error' in nextlineerr:
+            click.echo("Error with %s" % cmd_text, err=True)
+            click.echo(nextlineerr, err=True)
+            raise Exception
+
+
+
+def verify_dev_tool(dev_tool=''):
+    cmd_check = ('which %s' % (dev_tool))
+
+    check = subprocess.Popen(cmd_check, stdout = subprocess.PIPE,
+                               shell=True)
+
+    found = False
+    for line in check.stdout:
+        line_str = str(line.decode('ascii'))
+        if line_str != '':
+            found = True
+
+
+    return found
 
 if __name__ == '__main__':
     main()
