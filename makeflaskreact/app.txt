@@ -1,0 +1,42 @@
+import os
+from os.path import join
+from flask import Flask, send_from_directory, make_response, jsonify
+from flask_cors import CORS
+
+
+api_path='%s'
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'development key'
+cors = CORS(app, resources={r"{api_path}*".format(api_path=api_path): {"origins": "*"}})
+pathCur = os.path.abspath(os.pardir)
+pathFolder = join(pathCur,"client", "build")
+
+
+
+
+@app.route('/<path:path>')
+def serve(path):
+    ## for getting React build project to load from file
+    ## assumes file structure of
+    ##  | server
+    #   |  - app.py
+    ##  | client
+    #   |  - build
+    #   |  --index.html
+
+    path = path.replace(api_path.split("/")[0]+"/", "")
+    if path != "" and os.path.exists(join(pathFolder, path)):
+        return send_from_directory(pathFolder, path)
+    else:
+        return send_from_directory(pathFolder, 'index.html')
+
+@app.route("{api_path}test".format(api_path=api_path))
+def test():
+    res = make_response(jsonify({"test": "test"}))
+    res.headers['Access-Control-Allow-Origin'] = "*"
+    res.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept'
+    return res
+
+
+if __name__ == '__main__':
+    app.run(host='%s', port='%s', reload=True)

@@ -1,6 +1,12 @@
+MANIFEST.in
 README.md
 setup.py
+makeflaskreact/.gitignore.txt
+makeflaskreact/App.js.txt
+makeflaskreact/README.txt
 makeflaskreact/__init__.py
+makeflaskreact/app.txt
+makeflaskreact/requirements.txt
 makeflaskreact.egg-info/PKG-INFO
 makeflaskreact.egg-info/SOURCES.txt
 makeflaskreact.egg-info/dependency_links.txt

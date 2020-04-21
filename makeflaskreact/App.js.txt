@@ -1,0 +1,28 @@
+import React, { useState, useEffect } from "react";
+import logo from "./logo.svg";
+import "./App.css";
+import axios from "axios";
+
+function App() {
+    const [dataFethced, setDataFetched] = useState(null);
+    useEffect(() => {
+        axios
+            .get('%s')
+            .then(res => setDataFetched(res.data));
+    }, []);
+    return (
+        <div className="App">
+            <header className="App-header">
+                <img src={logo} className="App-logo" alt="logo" />
+                <h2>Welcome to your React/Flask App</h2>
+                <p>
+                    Edit <code>src/App.js and app.py</code> and save to reload.
+                </p>
+                <h3>Data Found from your Flask server</h3>
+                <p> {!!dataFethced ? JSON.stringify(dataFethced) : "loading.."} </p>
+            </header>
+        </div>
+    );
+}
+
+export default App;
