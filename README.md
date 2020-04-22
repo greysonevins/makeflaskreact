@@ -1,7 +1,7 @@
 ## Getting Started with makeflaskreact
 
 
-![](https://gph.is/g/4LW5MBQ)
+![app-logo](https://gph.is/g/4LW5MBQ)
 
 This app makes it easier for your to build a react flask application.
 
@@ -20,9 +20,9 @@ add `--name PROJECT_NAME` to change the project name from `app` to what you want
 
 add `--norun` or `N` to run the server and client on exceution of the script
 
-![](https://gph.is/g/ZPWme2Q)
+![demo-1](https://gph.is/g/ZPWme2Q)
 
-![](https://gph.is/g/ZyewNRO)
+![demo-2](https://gph.is/g/ZyewNRO)
 
 
 
@@ -43,4 +43,4 @@ add `--norun` or `N` to run the server and client on exceution of the script
 ### Final Output
 
 Assuming standard run `makeflaskreact`
-![](https://gph.is/g/ZyewNAv)
+![output](https://gph.is/g/ZyewNAv)
