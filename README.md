@@ -43,4 +43,5 @@ add `--norun` or `N` to run the server and client on exceution of the script
 ### Final Output
 
 Assuming standard run `makeflaskreact`
+
 ![output](https://media.giphy.com/media/VeNI9RzpFCqVBC3vHQ/giphy.gif)
