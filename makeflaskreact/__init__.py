@@ -10,14 +10,29 @@ import io
 from shutil import rmtree
 import re
 import click_spinner
+import json
+
+
+
+
+# NEEDED Python
+PYTHON_VERSION = 3.6
+
+## NEEDED npm
+NPM_VERSION = 5.2
+
+## NEEDED yarn
+YARN_VERSION = 0.25
+
+
 @click.command()
-@click.option('--app', '-a',  default='app', help='Name your application')
-@click.option('--norun', '-n',  default=False, help='This module will automatically run if unless you call no run')
+@click.option('--name', '-A',  default='app', help='Name your application')
+@click.option('--run/--no-run', '-R/-N',  default=True, help='This module will automatically run if unless you call --no-run')
 
 
 
 
-def main(app, norun):
+def main(name, run):
     local_level = __file__
     local_par = abspath(dirname(local_level))
     with open(join(local_par, "app.txt")) as f:
@@ -37,15 +52,15 @@ def main(app, norun):
         LOAD_APP_JS = f.read()
     click.echo('Building server folder 🗂️  🧰 ')
     cur_dir = getcwd()
-    app  = "".join(re.findall("[a-zA-Z]+", app))
-    working_dir_app = join(cur_dir, app)
+    name  = "".join(re.findall("[a-zA-Z]+", name))
+    working_dir_app = join(cur_dir, name)
     continueBoolApp = False
 
     if isdir(working_dir_app):
         continueBoolApp = click.confirm('Same app folder name exists, are you sure you would like to delete it? ', abort=True)
 
     if continueBoolApp:
-        rmtree(working_dir_app)
+        cmd_pipe_subprocess(('rm -rf % s' % (working_dir_app)))
         makedirs(working_dir_app)
 
 
@@ -127,8 +142,17 @@ def main(app, norun):
             pythonUsed = click.prompt('What is your python command (e.g., python python3)', type=str, default='python')
 
             found_dev_tool = verify_dev_tool(pythonUsed)
+
+
             if not found_dev_tool:
-                if click.confirm('% was not found on this system, would like to try again?' % pythonUsed, abort=True):
+                if click.confirm('%s was not found on this system, would like to try again?' % pythonUsed, abort=True):
+                    found_dev_tool = False
+
+            found_dev_tool = verify_version(pythonUsed, PYTHON_VERSION)
+
+
+            if not found_dev_tool:
+                if click.confirm('%s is less than required >= %s, do you wan to try another version?' %( pythonUsed, PYTHON_VERSION), abort=True):
                     found_dev_tool = False
 
 
@@ -149,9 +173,13 @@ def main(app, norun):
 
             found_dev_tool = verify_dev_tool(dev_tool)
             if not found_dev_tool:
-                if click.confirm('% was not found on this system, would like to try again?' % dev_tool, abort=True):
+                if click.confirm('%s was not found on this system, would like to try again?' % dev_tool, abort=True):
                     found_dev_tool = False
 
+            found_dev_tool = verify_version(dev_tool, YARN_VERSION if dev_tool == 'yarn' else NPM_VERSION)
+            if not found_dev_tool:
+                if click.confirm('%s is less than required >= %s, do you wan to try another version?' %( pythonUsed, YARN_VERSION if dev_tool == 'yarn' else NPM_VERSION), abort=True):
+                    found_dev_tool = False
 
 
         create_app = 'npx create-react-app %s' if dev_tool == 'npm' else 'yarn create react-app %s'
@@ -161,6 +189,7 @@ def main(app, norun):
         app_name = click.prompt('What do you want your react app to be called (defaults to client)', default='client')
         create_app = (create_app % app_name)
         app_path = join(working_dir_app, app_name)
+        cmd_run_app = ('cd %s && source %s/env/bin/activate && %s/env/bin/flask run --host %s --port %s --reload ' % (new_path_server, new_path_server, new_path_server, host, port))
 
 
         try:
@@ -178,6 +207,8 @@ def main(app, norun):
             click.echo()
 
             click.echo('Creating boilerplate around React App....')
+
+
             with click_spinner.spinner():
                 try:
                     install_axios_command = 'cd %s && %s' % (app_path, install_dev_tool)
@@ -189,6 +220,17 @@ def main(app, norun):
                         for line in app_js_file.split("\n"):
                             f.write(line + "\n")
                     click.echo('......New template App.js created ✅')
+
+                    with open(join(app_path, 'package.json')) as f:
+                        package_json = json.load(f)
+
+                    package_json['homepage'] = './'
+                    package_json['scripts']['start-server'] = cmd_run_app
+
+                    with open(join(app_path, 'package.json'), 'w+') as f:
+                        json.dump(package_json, f, indent=2)
+
+
 
                 except Exception as e:
                     click.echo(e, err=True)
@@ -227,11 +269,11 @@ def main(app, norun):
             click.echo('Done setting up virtualenv...✅')
 
         except Exception as e:
-            print(e)
+            click.echo(e, err=True)
             raise
 
 
-        if not norun:
+        if run:
 
 
 
@@ -242,7 +284,6 @@ def main(app, norun):
             click.echo('')
             click.echo('')
 
-            cmd_run_app = ('cd %s && source %s/env/bin/activate && %s/env/bin/flask run --host %s --port %s --reload ' % (new_path_server, new_path_server, new_path_server, host, port))
 #             cmd_run_final = shlex.split(cmd_run_app)
 
 #             cmd_open_browser = ("%s -m webbrowser -t %s" % (pythonUsed, server_url))
@@ -268,7 +309,7 @@ def main(app, norun):
                     click.echo(line_str)
                 if "Use a production" in line_str:
 #                     system(cmd_open_browser)
-                    system(cmd_start_react)
+                    # system(cmd_start_react)
                     click.echo()
                     click.echo("Done with setup and run app. Check your browser 🖥️  ✅")
                     click.echo()
@@ -277,13 +318,13 @@ def main(app, norun):
             for line in run_app_react.stdout:
                 line_str = str(line.decode('utf-8').strip())
                 if doneVirtual:
-                    print(line_str)
+                    click.echo(line_str)
 
 
         complete = True
     except Exception as e:
         click.echo('Error setting up virtualenv and flask app 🖥️  ❌')
-        print(e)
+        click.echo(e, err=True)
         raise
     if complete:
         click.echo('')
@@ -306,14 +347,14 @@ def cmd_pipe_subprocess(cmd='', cmd_text='',done_prompt=False):
             if type(nextline) == bytes:
                 nextline = str(nextline.decode('utf-8').strip())
         except:
-            print(e)
+            click.echo(e, err=True)
             nextline = nextline
         try:
             nextline = nextline
             if type(nextlineerr) == bytes:
                 nextlineerr = str(nextlineerr.decode('utf-8').strip())
         except Exception as e:
-            print(e)
+            click.echo(e, err=True)
             nextlineerr = nextlineerr
 
         if nextline == '' and cmd_pipe.poll() is not None:
@@ -327,6 +368,30 @@ def cmd_pipe_subprocess(cmd='', cmd_text='',done_prompt=False):
 
 
 
+def verify_version(dev_tool='', version_number=PYTHON_VERSION):
+
+    found=False
+    cmd_check = ('%s --version' % (dev_tool))
+
+
+    check = subprocess.Popen(cmd_check,
+                               stdout=subprocess.PIPE,
+                               shell=True)
+
+    for line in check.stdout:
+        if type(check) == bytes:
+            check = str(line.decode('utf-8'))
+
+        if dev_tool in ['yarn', 'npm']:
+            version = float(line.strip().split()[0][:3])
+        else:
+            version = float(line.strip().split()[1][:3])
+
+        if version >= version_number:
+            found = True
+
+    return found
+
 def verify_dev_tool(dev_tool=''):
     cmd_check = ('which %s' % (dev_tool))
 
@@ -335,7 +400,7 @@ def verify_dev_tool(dev_tool=''):
 
     found = False
     for line in check.stdout:
-        line_str = str(line.decode('ascii'))
+        line_str = str(line.decode('utf-8'))
         if line_str != '':
             found = True
 

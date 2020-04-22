@@ -1,27 +1,46 @@
 ## Getting Started with makeflaskreact
 
-I wanted to make a commmand line tool to easily generate a flask app that will work with React's cors issues
-because I have to rebuild this a lot.
 
-To run `$ pip install makeflaskreact`
-then  `$ makeflaskreact`
-optionally you could add a `FOLDER_NAME` and `API_PATH` name in that order.
-the default folder name will be `server` and the default api path will be `/api/`
+![](https://gph.is/g/4LW5MBQ)
+
+This app makes it easier for your to build a react flask application.
+
+Flask does not directly work with React in development as it needs cors to handle the cross-origin error on your local react app. So, this boiler plate reduces the time spent creating a simple react and flask app.
+
+Requirements are `yarn` or `npm` and `python>=3.6.0`
+
+To install:
+`$ pip install makeflaskreact`
+
+To run:
+
+`$ makeflaskreact`
+optionally:
+add `--name PROJECT_NAME` to change the project name from `app` to what you want.
+
+add `--norun` or `N` to run the server and client on exceution of the script
+
+![](https://gph.is/g/ZPWme2Q)
+
+![](https://gph.is/g/ZyewNRO)
 
 
 
-```shell
+### Parameters
 
-Options:
-  -f, --foldername TEXT  Name of the folder for the new flask react server
-  -a, --apipath TEXT     Name of the api path name for the flask server
-  -n, --norun TEXT       This module will automatically run if unless you call
-                         no run
+**Input** | **Defaults**
+------------ | -------------
+**name**  (--name/-A)| app
+**run**  (--run/-r) (--no-run/-N)| True -- will run if --no-run is not present
+**server name** | server
+**python** (used to create virtual env and download requirments)| python
+**host** | 127.0.0.1
+**port** | 5000
+**react client** | no default will ask for either yarn (0.25+) or npm (5.2+)
+**client** | client
 
-  -p, --port TEXT        Set the port number for your app, will default to
-                         5000
 
-  -h, --host TEXT        Set host name for your app, will default to 127.0.0.1
-  --help                 Show this message and exit.
+### Final Output
 
-```
+Assuming standard run `makeflaskreact`
+![](https://gph.is/g/ZyewNAv)

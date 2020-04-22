@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="makeflaskreact",
-    version="1.0.7",
+    version="1.0.8",
     author="Greyson Nevins-Archer",
     author_email="greyson.nevins@gmail.com",
     description="To make it easier to create a quick flask react app",
@@ -27,5 +27,5 @@ setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.6',
-    entry_points={"console_scripts": ["reactflask=makeflaskreact.__init__:main"]},
+    entry_points={"console_scripts": ["makeflaskreact=makeflaskreact.__init__:main"]},
 )

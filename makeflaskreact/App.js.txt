@@ -12,15 +12,21 @@ function App() {
     }, []);
     return (
         <div className="App">
-            <header className="App-header">
-                <img src={logo} className="App-logo" alt="logo" />
+            <div className="App-header">
+                <div style={{padding: 20, flex:0.5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+                    <div>
+                        <img src={logo} className="App-logo" alt="logo" />
+                        <img src={'https://seeklogo.com/images/F/flask-logo-44C507ABB7-seeklogo.com.png'} className="App-logo" alt="flask-logo" />
+                    </div>
+                </div>
+
                 <h2>Welcome to your React/Flask App</h2>
                 <p>
                     Edit <code>src/App.js and app.py</code> and save to reload.
                 </p>
                 <h3>Data Found from your Flask server</h3>
                 <p> {!!dataFethced ? JSON.stringify(dataFethced) : "loading.."} </p>
-            </header>
+            </div>
         </div>
     );
 }
