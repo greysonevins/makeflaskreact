@@ -20,7 +20,7 @@ add `--name PROJECT_NAME` to change the project name from `app` to what you want
 
 add `--norun` or `N` to run the server and client on exceution of the script
 
-![demo-1](https://media.giphy.com/media/TdF5sACrK2jdTNafCr/giphy.gif)
+![demo-1](https://media.giphy.com/media/WUHXwVNK9dSJJbuJR7/giphy.gif)
 
 ![demo-2](https://media.giphy.com/media/LMoQae5MGbHSBiwPQ8/giphy.gif)
 
