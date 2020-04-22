@@ -1,7 +1,7 @@
 ## Getting Started with makeflaskreact
 
 
-![app-logo](https://media.giphy.com/media/WqXCUrGLdyPgnoUmvn/giphy.gif)
+![app-logo](https://media.giphy.com/media/RGRsbULziA8PfLYwiN/giphy.gif)
 
 This app makes it easier for your to build a react flask application.
 
